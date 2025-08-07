@@ -87,12 +87,12 @@ jobs:
             ./gradlew build -x test
 
             # 4. Build Docker Image on the server
-            docker rmi dongnehankki:latest || true
-            docker build -t dongnehankki:latest .
-
-            # 5. Stop, remove, and run the Docker container
             docker stop dongnehankki || true
             docker rm dongnehankki || true
+            docker rmi dongnehankki:latest || true
+            docker build --no-cache -t dongnehankki:latest .
+
+            # 5. Stop, remove, and run the Docker container
             docker run -d \
             --name dongnehankki \
             --network attendance-deploy_attendance-net  \
