@@ -68,35 +68,11 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
           script: |
-            # Define repository path and branch
-#            REPO_DIR="/home/${{ secrets.SERVER_USER }}/DongneHankki-BE" # Adjust path as needed
-#            BRANCH="develop" # Or whatever branch is being deployed
-#
-#            # 1. Clone or pull the latest code
-#            if [ -d "$REPO_DIR" ]; then
-#              echo "Repository already exists. Pulling latest changes..."
-#              cd "$REPO_DIR"
-#              git reset --hard
-#              git clean -fd
-#              git fetch origin
-#              git checkout "$BRANCH"
-#              git pull origin "$BRANCH"
-#            else
-#              echo "Cloning repository..."
-#              git clone https://github.com/${{ github.repository }}.git "$REPO_DIR"
-#              cd "$REPO_DIR"
-#              git checkout "$BRANCH"
-#            fi
-
             cd /home/${{ secrets.SERVER_USER }}/deploy-temp
 
             # 2. Create application-prod.yml on the server
             mkdir -p src/main/resources
             echo "${{ secrets.PROPERTIES_PROD }}" > src/main/resources/application-prod.yml
-
-#            # 3. Build the application on the server to create the JAR
-#            chmod +x gradlew
-#            ./gradlew build -x test
 
             # 4. Build Docker Image on the server
             docker stop dongnehankki || true
