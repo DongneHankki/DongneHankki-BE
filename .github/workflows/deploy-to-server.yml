@@ -39,7 +39,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-jar
-          path: build/libs/*.jar
+          path: |
+            build/libs/*.jar
+            Dockerfile
 
   deploy:
     name: Deploy to Server
@@ -53,8 +55,8 @@ jobs:
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: app-jar
-          path: build/libs
+          name: app-jar-and-dockerfile
+          path: .
 
       - name: Copy files to Server
         uses: appleboy/scp-action@v0.1.7
@@ -63,10 +65,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
-          source: |
-            build/libs/*.jar
-            Dockerfile
-            src/**
+          source: "build/libs/*.jar,Dockerfile"
           target: "/home/${{ secrets.SERVER_USER }}/deploy-temp"
 
       - name: Deploy via SSH
