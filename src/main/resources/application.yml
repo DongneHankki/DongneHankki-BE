@@ -1,21 +1,93 @@
 spring:
-  config:
-    import: application-local.yml
+  profiles:
+    active: local
   datasource:
-    url: jdbc:mysql://localhost:3306/dongnehankki?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/dongnehankki?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  servlet:
+         multipart:
+           max-file-size: 10MB
+           max-request-size: 10MB
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create-drop
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 100
 logging:
   level:
     org.hibernate.sql: debug
+
+server:
+  url: ${SERVER_URL}
+
+jwt:
+  secret : ${SERVER_SECRET}
+  access-token-expiration-minutes: ${SERVER_EXPIRATION}
+  refresh-token-expiration-minutes: ${REFRESH_TOKEN_EXPIRATION}
+
+openapi:
+  gg:
+    key: ${GG_OPEN_API_KEY}
+    url: https://openapi.gg.go.kr/RegionMnyFacltStus
+    sigun-nm: 광명시
+  cc:
+    key: ${CC_OPEN_API_KEY}
+    url: https://api.odcloud.kr/api/15033669/v1/uddi:e9a0dfe2-e4d8-4bb4-8474-e65db0df3aa7
+  vworld:
+    key: ${VW_OPEN_API_KEY}
+    url: https://api.vworld.kr/req/address
+coolsms:
+  api:
+    key: ${COOLSMS_API_KEY}
+    secret: ${COOLSMS_SECRET_KEY}
+    number: ${COOLSMS_SENDER_NUMBER}
+
+fcm:
+  secret: ${FCM_FILE_NAME}
+
+google:
+  gemini:
+    api-key: ${GEMINI_API_KEY}
+  cloud:
+    project: ${GOOGLE_PROJECT_ID}
+    location: global
+    cloud-key: ${GOOGLE_CLOUD_KEY}
+
+analytics:
+  csv: ${S3_CSV_LINK}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, httpexchanges, metrics, prometheus
+  endpoint:
+    health:
+      show-details: always
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: optional:application-local.yml
+
+cloud:
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ${AWS_REGION}

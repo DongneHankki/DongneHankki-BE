@@ -1,0 +1,56 @@
+package org.netway.dongnehankki.follow.presentation;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.netway.dongnehankki.follow.application.FollowService;
+import org.netway.dongnehankki.global.auth.CustomUserDetails;
+import org.netway.dongnehankki.global.common.ApiResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@Tag(name = "팔로우", description = "가게 팔로우/언팔로우 API")
+@RestController
+@RequestMapping("/api/follows")
+@RequiredArgsConstructor
+public class FollowController {
+
+    private final FollowService followService;
+
+    @Operation(summary = "가게 팔로워 수 확인", description = "특정 가게의 팔로워 수를 확인합니다.")
+    @GetMapping("/store/followerCount/{storeId}")
+    public ResponseEntity<ApiResponse<Long>> followerCount(
+        @Parameter(description = "팔로우 수 확인할 가게 ID") @PathVariable Long storeId) {
+        Long followerCount =  followService.followerCount(storeId);
+        return ResponseEntity.ok(ApiResponse.success(followerCount));
+    }
+
+    @Operation(summary = "가게 팔로우 여부 확인", description = "사용자가 가게를 팔로우 했는지 확인합니다.")
+    @GetMapping("/store/followCheck/{storeId}")
+    public ResponseEntity<ApiResponse<Boolean>> followCheck(
+        @Parameter(description = "팔로우 여부 확인할 가게 ID") @PathVariable Long storeId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        boolean isFollowed =  followService.followCheck(userDetails.getUser().getUserId(), storeId);
+        return ResponseEntity.ok(ApiResponse.success(isFollowed));
+    }
+
+    @Operation(summary = "가게 팔로우", description = "사용자가 특정 가게를 팔로우합니다.")
+    @PostMapping("/store/{storeId}")
+    public ResponseEntity<ApiResponse<Void>> follow(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(description = "팔로우할 가게 ID") @PathVariable Long storeId) {
+        followService.follow(userDetails.getUser().getUserId(), storeId);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @Operation(summary = "가게 언팔로우", description = "사용자가 팔로우했던 가게를 언팔로우합니다.")
+    @DeleteMapping("/store/{storeId}")
+    public ResponseEntity<ApiResponse<Void>> unfollow(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(description = "언팔로우할 가게 ID") @PathVariable Long storeId) {
+        followService.unfollow(userDetails.getUser().getUserId(), storeId);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+}
